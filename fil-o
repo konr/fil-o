@@ -1,0 +1,17 @@
+#!/bin/bash
+
+if [[ "$IDT_TOKEN" == "" ]]; then
+	echo "Please export your token to \$IDT_TOKEN"
+	echo "You can find it at: https://idonethis.com/api/token/"
+	exit 1
+fi
+
+raw=$(curl -s -H "Authorization: Token $IDT_TOKEN" https://idonethis.com/api/v0.1/dones/?page_size=100)
+days=$(echo $raw  | jq '.results[] | .done_date' | uniq)
+
+for day in $days; do
+  echo $day
+  things=$(echo $raw | jq ".results[] | select(.done_date == $day) | .raw_text")
+  echo $things | jq '.'
+  echo
+done
